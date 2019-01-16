@@ -17,14 +17,14 @@
 </head>
 <body>
 <div class="topnav">
-    <a class="active"><h1><b>Tokopedia User Repository</b></h1></a>
+    <a class="active"><h2><b>Tokopedia User Repository</b></h2></a>
     <div class="search-container">
         <input id="search_input" type="text" placeholder="Search.." name="search">
-        <button id="search_button">Submit</button>
+        <button id="search_button"><b>Submit</b></button>
     </div>
 </div>
 <div class="container" style="padding:50px 50px;">
-    <table id="photos" class="display" cellspacing="0" width="100%">
+    <table id="tabel1" class="display" cellspacing="0" width="100%">
         <thead>
         <tr>
             <th>UserID</th>
@@ -41,25 +41,47 @@
     </table>
 </div>
 <footer>
-    <div class="footer-copyright text-center py-3"><b>Visitor count = 1000</b></a>
+    <div class="footer-copyright text-center py-3"><b>Visitor count = </b><b id="label_count">0</b>
     </div>
-
 </footer>
+<div id="footer"></div>
 <!-- Footer -->
 </body>
 </html>
 <script type="text/javascript">
     $(document).ready(function () {
         getUserData("http://127.0.0.1:8080/user/get_users_paging?max_result=100")
+        publishVisitor()
+        getVisitorCount()
     });
 
     $(function () {
         $("#search_button").click(function (e) {
             var objToGet = new Object();
             objToGet.full_name = $('#search_input').val();
-            getUserData("http://127.0.0.1:8080/user/get_users_paging?max_result=100&filter={\"full_name\":\"" + objToGet.full_name + "\"}")
+            //getUserData("http://127.0.0.1:8080/user/get_users_paging?max_result=100&filter={\"full_name\":\"" + objToGet.full_name + "\"}")
+            getUserData("http://127.0.0.1:8080/user/get_users_paging?max_result=100&filter={\"full_name\":\""+objToGet.full_name+"\",\"user_email\":\""+objToGet.full_name+"\",\"msisdn\":\""+objToGet.full_name+"\"}")
+            $("#search_input").val("");
         })
     });
+
+    function publishVisitor() {
+        $.ajax({
+            url: "http://127.0.0.1:8080/publish?data={\"topic\":\"Topic.Visitor.Counter\",\"message\":\"OK\"}",
+            async: false,
+            type: "GET",
+            dataType: 'json',
+            success: function (response) {
+                if (response !== null) {
+                    if (response.success === true) {
+                        console.log("NSQ publish success")
+                    } else {
+                        console.log("NSQ publish failed")
+                    }
+                }
+            }
+        });
+    }
 
     function getUserData(URL) {
         console.log("url:" + URL)
@@ -86,8 +108,27 @@
                                 ]);
                                 return false;
                             });
-                            inittable(arrayReturn);
                         }
+                        inittable(arrayReturn);
+                    }
+                }
+            }
+        });
+    }
+
+    function getVisitorCount() {
+        var arrayReturn = [];
+        $.ajax({
+            url: "http://127.0.0.1:8080/get_visitor_count",
+            async: false,
+            type: "GET",
+            dataType: 'json',
+            success: function (response) {
+                if (response !== null) {
+                    if (response.success === true) {
+                        console.log(response.result)
+                        console.log(response.result.visitor_count)
+                        $("#label_count").text("" + response.result.visitor_count);
                     }
                 }
             }
@@ -96,7 +137,7 @@
 
     function inittable(data) {
         //console.log(data);
-        table = $('#photos').DataTable({
+        table = $('#tabel1').DataTable({
             "aaData": data,
             "responsive": true,
             "destroy": true,
