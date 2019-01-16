@@ -17,10 +17,10 @@
 </head>
 <body>
 <div class="topnav">
-    <a class="active"><h1><b>Tokopedia User Repository</b></h1></a>
+    <a class="active"><h2><b>Tokopedia User Repository</b></h2></a>
     <div class="search-container">
         <input id="search_input" type="text" placeholder="Search.." name="search">
-        <button id="search_button">Submit</button>
+        <button id="search_button"><b>Submit</b></button>
     </div>
 </div>
 <div class="container" style="padding:50px 50px;">
@@ -44,6 +44,7 @@
     <div class="footer-copyright text-center py-3"><b>Visitor count = </b><b id="label_count">0</b>
     </div>
 </footer>
+<div id="footer"></div>
 <!-- Footer -->
 </body>
 </html>
@@ -58,7 +59,9 @@
         $("#search_button").click(function (e) {
             var objToGet = new Object();
             objToGet.full_name = $('#search_input').val();
-            getUserData("http://127.0.0.1:8080/user/get_users_paging?max_result=100&filter={\"full_name\":\"" + objToGet.full_name + "\"}")
+            //getUserData("http://127.0.0.1:8080/user/get_users_paging?max_result=100&filter={\"full_name\":\"" + objToGet.full_name + "\"}")
+            getUserData("http://127.0.0.1:8080/user/get_users_paging?max_result=100&filter={\"full_name\":\""+objToGet.full_name+"\",\"user_email\":\""+objToGet.full_name+"\",\"msisdn\":\""+objToGet.full_name+"\"}")
+            $("#search_input").val("");
         })
     });
 
@@ -105,8 +108,8 @@
                                 ]);
                                 return false;
                             });
-                            inittable(arrayReturn);
                         }
+                        inittable(arrayReturn);
                     }
                 }
             }
